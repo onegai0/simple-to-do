@@ -13,6 +13,7 @@ export function useTodos() {
     queryFn: todoService.getAll,
   });
 
+
   const addMutation = useMutation({
     mutationFn: todoService.add,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),

@@ -1,16 +1,23 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import svgr from 'vite-plugin-svgr'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    svgr({
+      svgrOptions: {
+        icon: true,
+      },
+    }),
+  ],
   server: {
     proxy: {
       '/api': {
-        target: 'https://localhost:5254', // porta da sua API .NET
+        target: 'https://localhost:5254',
         changeOrigin: true,
         secure: false,
-      }
-    }
-  }
+      },
+    },
+  },
 })

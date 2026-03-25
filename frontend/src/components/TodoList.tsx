@@ -5,7 +5,7 @@ import { TodoItem } from "./TodoItem";
 
 export function TodoList() {
   const [input, setInput] = useState("");
-  const { todos, isLoading, isError, addTodo, toggleTodo, deleteTodo, isAdding } = useTodos();
+ const { todos, isFetching, hasFetchError, addTodo, toggleTodo, deleteTodo, isAdding } = useTodos();
 
   function handleAdd() {
     const trimmed = input.trim();
@@ -18,8 +18,8 @@ export function TodoList() {
     if (e.key === "Enter") handleAdd();
   }
 
-  if (isLoading) return <p>Carregando...</p>;
-  if (isError) return <p style={{ color: "red" }}>Erro ao carregar tarefas.</p>;
+  if (isFetching) return <p>Carregando...</p>;
+  if (hasFetchError) return <p style={{ color: "red" }}>Erro ao carregar tarefas.</p>;
 
   return (
     <div style={{ maxWidth: "400px", margin: "2rem auto", fontFamily: "sans-serif" }}>
