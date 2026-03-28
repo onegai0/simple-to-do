@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import './App.css'
-import { TodoList } from './components/TodoList'
 import AddIcon from '/src/assets/add.svg?react'
 import RemoveIcon from '/src/assets/trash.svg?react'
 import FilterIcon from '/src/assets/filter.svg?react'
 
 import { useServerStatus } from './hooks/serverStatus'
+import { TodoItem } from './components/TodoItemV';
+import { TodoList } from './components/TodoListV';
+
 function App() {
 
   const [open, setOpen] = useState(false);
@@ -112,6 +114,7 @@ function App() {
 
         <div className='flex gap-3.5 items-center'>
 
+          {/* Status */}
           <div className="relative group">
             <div className={`h-2 w-2  rounded-full  ${statusColor[status]}`}></div>
 
@@ -119,7 +122,26 @@ function App() {
               {status === 0 ? "Loading" : status === 1 ? "Offline" : "Online"}
             </div>
           </div>
-          <FilterIcon className="w-[20px] h-[20px]  text-gray-400 cursor-pointer hover:text-white" onClick={() => removeItem(selected)} />
+
+          {/* Search */}
+          <div className="relative w-[350px]  bg-gray-800 rounded  select-none">
+
+            <div
+              className="text-white cursor-pointer text-xs flex justify-between py-1.5 hover:bg-gray-600   items-center px-2"            >
+              <h2 className="line-clamp-1"> Pesquisar</h2>
+              <img
+                className="invert brightness-200"
+                width="16"
+                src="/src/assets/search.svg"
+              />
+            </div>
+
+            <div className=' bg-white h-px'></div>
+
+          </div>
+
+
+          <FilterIcon className="w-[20px] h-[20px]  text-gray-400 cursor-pointer hover:text-white" />
 
 
           {/* <nav id="social" aria-label="Redes sociais">
@@ -150,8 +172,27 @@ function App() {
       </header>
 
       <section id="center">
-        <div>
-          <TodoList />
+        <div className=' flex flex-col gap-2'>
+
+          <TodoList>
+            
+          </TodoList>
+
+          {/* <TodoItem todo={undefined} onToggle={function (id: number): void {
+            throw new Error('Function not implemented.');
+          } } onDelete={function (id: number): void {
+            throw new Error('Function not implemented.');
+          } } />
+                    <TodoItem todo={undefined} onToggle={function (id: number): void {
+            throw new Error('Function not implemented.');
+          } } onDelete={function (id: number): void {
+            throw new Error('Function not implemented.');
+          } } />
+                    <TodoItem todo={undefined} onToggle={function (id: number): void {
+            throw new Error('Function not implemented.');
+          } } onDelete={function (id: number): void {
+            throw new Error('Function not implemented.');
+          } } /> */}
         </div>
       </section>
 

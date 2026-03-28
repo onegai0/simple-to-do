@@ -1,14 +1,14 @@
 // hooks/useTodos.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { todoService } from "../services/todoService";
-import type { Todo } from "../services/todoService";
+import type { Todo } from '../interfaces/ITodo';
 
 const QUERY_KEY = ["todos"];
 
 export function useTodos() {
   const queryClient = useQueryClient();
 
-  const { data: todos = [], isLoading, isError } = useQuery({
+  const { data: todos = [], isFetching, hasFetchError } = useQuery({
     queryKey: QUERY_KEY,
     queryFn: todoService.getAll,
   });
@@ -36,8 +36,8 @@ export function useTodos() {
 
   return {
     todos,
-    isLoading,
-    isError,
+    isFetching,
+    hasFetchError,
     addTodo: (title: string) => addMutation.mutate(title),
     toggleTodo: (id: number) => toggleMutation.mutate(id),
     deleteTodo: (id: number) => deleteMutation.mutate(id),
