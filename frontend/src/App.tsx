@@ -5,8 +5,11 @@ import RemoveIcon from '/src/assets/trash.svg?react'
 import FilterIcon from '/src/assets/filter.svg?react'
 
 import { useServerStatus } from './hooks/serverStatus'
-import { TodoItem } from './components/TodoItemV';
-import { TodoList } from './components/TodoListV';
+import { TodoList } from './components/TodoList';
+import type { TodoListType } from "./interfaces/ITodoList"
+import { Popup } from './components/Popup';
+import { ListForm } from './forms/ListForm';
+
 
 function App() {
 
@@ -18,6 +21,53 @@ function App() {
     setOpen(false);
 
   };
+
+  const [lists, setLists] = useState<TodoListType[]>([
+    { id: 1, title: "Lista 1", items: [{ id: 1, title: "Tarefa 1", completed: false }] }
+  ])
+
+
+  const addList = (id: number, title: string) => {
+    setLists(prev => [...prev, { id, title, items: [] }])
+  }
+
+  const editList = (id: number, title: string) => {
+    setLists(prev => prev.map(list => list.id === id ? { ...list, title } : list))
+  }
+  function editTodo(listId: number, todoId: number, t: string) {
+    setLists(prev =>
+      prev.map(list =>
+        list.id === listId
+          ? {
+            ...list,
+            items: list.items.map(item =>
+              item.id === todoId
+                ? { ...item, title: t }
+                : item
+            )
+          }
+          : list
+      )
+    );
+  }
+
+  const addTodo = (listId: number, text: string) => {
+    setLists(prev =>
+      prev.map(list =>
+        list.id === listId
+          ? { ...list, items: [...list.items, { id: list.items.length + 1, title: text, completed: false }] }
+          : list
+      )
+    )
+  }
+
+  const deleteList = (id: number) => {
+    setLists(prev => prev.filter(list => list.id !== id));
+  }
+
+  const deleteTodo = (id: number) => {
+    setLists(prev => prev.map(list => ({ ...list, items: list.items.filter(item => item.id !== id) })));
+  }
 
   const statusColor: Record<number, string> = {
     0: 'bg-yellow-400',
@@ -59,142 +109,186 @@ function App() {
     })
   }
 
+  const [popupActive, setPopupActive] = useState(false);
+  function toggleTodo(listId: number, todoId: number) {
+    setLists(prev =>
+      prev.map(list =>
+        list.id === listId
+          ? {
+            ...list,
+            items: list.items.map(item =>
+              item.id === todoId
+                ? { ...item, completed: !item.completed }
+                : item
+            )
+          }
+          : list
+      )
+    );
+  }
+
   return (
     <>
-      <header id="header">
 
-        <div className='top-left'>
-
-          <h1>
-            <a href="https://www.youtube.com/@onegai_01" className="text-button">
-              Ooka
-            </a>
-          </h1>
-          <div className="relative w-[350px]  bg-gray-800 rounded  select-none">
-
-            <div
-              className="text-white cursor-pointer text-xs flex justify-between py-1.5 hover:bg-gray-600   items-center px-2"
-              onClick={() => setOpen(!open)}
-            >
-              <h2 className="line-clamp-1">{selected}</h2>
-              <img
-                className="invert brightness-200"
-                width="20"
-                src="/src/assets/down-arrow.svg"
-              />
-            </div>
-
-            <div className=' bg-white h-px'></div>
-
-            <div
-              className={`absolute left-0 w-full  bg-gray-800 rounded top-12 overflow-y-auto max-h-[222px] custom-scroll ${open ? "block" : "hidden"}`}
-            >
-              {options
-                .filter((option) => option !== selected)
-                .map((option) => (
-                  <div
-                    key={option}
-                    onClick={() => handleSelect(option)}
-                    className="pl-2 text-white cursor-pointer text-xs hover:bg-gray-600 py-1.5"
-                  >
-                    {option}
-                  </div>
-                ))}
-            </div>
-          </div>
-
-
-          <AddIcon className="w-[20px] h-[20px]   text-gray-400 cursor-pointer hover:text-white" onClick={() => addItem("New Option")} />
-          <RemoveIcon className="w-[20px] h-[20px]  text-gray-400 cursor-pointer hover:text-white" onClick={() => removeItem(selected)} />
-
-        </div>
+      <div className="h-screen flex flex-col overflow-hidden">
 
 
 
+        <header id="header" className=' bg-[#161616] '>
 
-        <div className='flex gap-3.5 items-center'>
+          <div className='top-left'>
 
-          {/* Status */}
-          <div className="relative group">
-            <div className={`h-2 w-2  rounded-full  ${statusColor[status]}`}></div>
+            <h1>
+              <a href="https://www.youtube.com/@onegai_01" className="text-button">
+                Ooka
+              </a>
+            </h1>
 
-            <div className="absolute hidden group-hover:block  text-[14px] bg-gray-800 text-gray-200 px-2 rounded mr-2 right-full top-1/2 -translate-y-1/2 ml-2 whitespace-nowrap">
-              {status === 0 ? "Loading" : status === 1 ? "Offline" : "Online"}
-            </div>
-          </div>
-
-          {/* Search */}
-          <div className="relative w-[350px]  bg-gray-800 rounded  select-none">
-
-            <div
-              className="text-white cursor-pointer text-xs flex justify-between py-1.5 hover:bg-gray-600   items-center px-2"            >
-              <h2 className="line-clamp-1"> Pesquisar</h2>
-              <img
-                className="invert brightness-200"
-                width="16"
-                src="/src/assets/search.svg"
-              />
-            </div>
-
-            <div className=' bg-white h-px'></div>
-
-          </div>
+            <div className=' bar-position-fix'>
 
 
-          <FilterIcon className="w-[20px] h-[20px]  text-gray-400 cursor-pointer hover:text-white" />
+              <div className="relative w-[350px]  rounded  select-none">
 
-
-          {/* <nav id="social" aria-label="Redes sociais">
-            <ul>
-              <li>
-                <a
-                  href="https://github.com/onegai0"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <div
+                  className="text-white cursor-pointer text-xs flex justify-between py-1.5 hover:bg-[#161616]   items-center "
+                  onClick={() => setOpen(!open)}
                 >
-                  <svg
-                    className="button-icon"
-                    role="presentation"
-                    aria-hidden="true"
-                  >
-                    <use href="/icons.svg#github-icon"></use>
-                  </svg>
-                  <span>GitHub</span>
-                </a>
-              </li>
-            </ul>
-          </nav> */}
+                  <h2 className="line-clamp-1">{selected}</h2>
+                  <img
+                    className="invert brightness-200"
+                    width="20"
+                    src="/src/assets/down-arrow.svg"
+                  />
+                </div>
+
+                <div className=' bg-white h-px '></div>
+
+                <div
+                  className={`absolute left-0 w-full  bg-[#161616]  rounded top-12 overflow-y-auto max-h-[222px] custom-scroll ${open ? "block" : "hidden"}`}
+                >
+                  {options
+                    .filter((option) => option !== selected)
+                    .map((option) => (
+                      <div
+                        key={option}
+                        onClick={() => handleSelect(option)}
+                        className="pl-2 text-white cursor-pointer text-xs hover:bg-[#161616] py-1.5"
+                      >
+                        {option}
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              <AddIcon className="w-[20px] h-[20px]   text-gray-400 cursor-pointer hover:text-white" onClick={() => addItem("New Option")} />
+              <RemoveIcon className="w-[20px] h-[20px]  text-gray-400 cursor-pointer hover:text-white" onClick={() => removeItem(selected)} />
+
+            </div>
+
+          </div>
 
 
-        </div>
 
 
-      </header>
+          <div className='bar-position-fix '>
 
-      <section id="center">
-        <div className=' flex flex-col gap-2'>
+            {/* Status */}
+            <div className="relative group">
+              <div className={`h-2 w-2  rounded-full  ${statusColor[status]}`}></div>
 
-          <TodoList>
-            
-          </TodoList>
+              <div className="absolute hidden group-hover:block  text-[14px] bg-gray-800 text-gray-200 px-2 rounded mr-2 right-full top-1/2 -translate-y-1/2 ml-2 whitespace-nowrap">
+                {status === 0 ? "Loading" : status === 1 ? "Offline" : "Online"}
+              </div>
+            </div>
 
-          {/* <TodoItem todo={undefined} onToggle={function (id: number): void {
-            throw new Error('Function not implemented.');
-          } } onDelete={function (id: number): void {
-            throw new Error('Function not implemented.');
-          } } />
-                    <TodoItem todo={undefined} onToggle={function (id: number): void {
-            throw new Error('Function not implemented.');
-          } } onDelete={function (id: number): void {
-            throw new Error('Function not implemented.');
-          } } />
-                    <TodoItem todo={undefined} onToggle={function (id: number): void {
-            throw new Error('Function not implemented.');
-          } } onDelete={function (id: number): void {
-            throw new Error('Function not implemented.');
-          } } /> */}
-        </div>
-      </section>
+            {/* Search */}
+            <div className="relative w-[350px]   rounded  select-none">
+
+              <div
+                className="text-white cursor-pointer text-xs flex justify-between py-1.5 hover:bg-[#161616]   items-center "            >
+                <h2 className="line-clamp-1"> Pesquisar</h2>
+                <img
+                  className="invert brightness-200"
+                  width="16"
+                  src="/src/assets/search.svg"
+                />
+              </div>
+
+              <div className=' bg-white h-px'></div>
+
+            </div>
+
+
+            <FilterIcon className="w-[20px] h-[20px]  text-gray-400 cursor-pointer hover:text-white" />
+
+
+          </div>
+
+
+        </header>
+
+        <section className="flex h-full py-[18px]  overflow-hidden">
+
+          {/* <div className="bg-[#161616] w-[1200px] rounded-md">
+    
+          </div>
+
+          <div className=' w-[1px] bg-white rounded-xl h-full'></div> */}
+
+
+          <div className="flex flex-row overflow-y-auto w-full h-full items-start">
+
+            <div>
+              <div className='w-[15px] flex bg-amber-400 '>
+
+              </div>
+
+            </div>
+
+
+            {lists.map(list => (
+              <TodoList key={list.id} list={list} onAddTodo={addTodo} onToggleTodo={toggleTodo} onEditList={editList} onDeleteTodo={deleteTodo} onDeleteList={deleteList} onEditTodo={editTodo} />
+            ))}
+
+            <div className=' flex'>
+              <div className=" bg-[#4e4e4e] w-[300px]  h-[45px] rounded-md flex  px-2 items-center gap-2 text-[#e9e9e9] text-[14px] font-[600] 
+                        select-none  cursor-pointer leading-0 hover:bg-[#555555]" onClick={() => setPopupActive(true)} >
+                <AddIcon className=" size-[20px] text-[#e9e9e9]" />
+                <div >Adicionar outra lista</div>
+
+                {popupActive && (
+                  <Popup title="" onClose={() => setPopupActive(false)}>
+                    <ListForm
+                      onConfirm={(title) => {
+                        addList(lists.length + 1, title);
+                        setPopupActive(false);
+                      }}
+                      onCancel={() => setPopupActive(false)}
+                    />
+                  </Popup>
+                )}
+              </div>
+
+              <div className='w-[15px] flex '>
+
+              </div>
+
+            </div>
+
+
+          </div>
+
+        </section>
+
+
+
+
+      </div>
+
+
+
+
+
 
     </>
   )

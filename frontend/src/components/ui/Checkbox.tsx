@@ -1,7 +1,17 @@
- export default function Checkbox() {
+interface CheckboxProps {
+    checked?: boolean;
+    onChange?: (checked: boolean) => void;
+}
+
+export default function Checkbox({ checked, onChange }: CheckboxProps) {
     return (
-        <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" className="hidden peer" />
+        <label className="flex items-center gap-2 cursor-pointer"  translate="no">
+            <input
+                type="checkbox"
+                className="hidden peer"
+                checked={checked}
+                onChange={(e) => onChange?.(e.target.checked)}
+            />
 
             <div className="
      size-4 border-2 rounded

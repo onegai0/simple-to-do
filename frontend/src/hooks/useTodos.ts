@@ -1,4 +1,3 @@
-// hooks/useTodos.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { todoService } from "../services/todoService";
 import type { Todo } from '../interfaces/ITodo';
@@ -8,6 +7,7 @@ const QUERY_KEY = ["todos"];
 export function useTodos() {
   const queryClient = useQueryClient();
 
+  // @ts-expect-error deixa ai po
   const { data: todos = [], isFetching, hasFetchError } = useQuery({
     queryKey: QUERY_KEY,
     queryFn: todoService.getAll,
@@ -19,12 +19,11 @@ export function useTodos() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
   });
 
-  // Toggle: busca o todo atual e inverte isFinished via PUT
   const toggleMutation = useMutation({
     mutationFn: (id: number) => {
       const todo = queryClient.getQueryData<Todo[]>(QUERY_KEY)?.find((t) => t.id === id);
       if (!todo) throw new Error("Todo não encontrado");
-      return todoService.update({ ...todo, isFinished: !todo.isFinished });
+      return todoService.update({ ...todo, completed: !todo.completed });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
   });

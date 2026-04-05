@@ -1,61 +1,131 @@
-// components/TodoList.tsx
-import { useState } from "react";
-import { useTodos } from "../hooks/useTodos";
 import { TodoItem } from "./TodoItem";
+import AddIcon from '/src/assets/add.svg?react'
+import RemoveIcon from '/src/assets/trash.svg?react'
 
-export function TodoList() {
-  const [input, setInput] = useState("");
- const { todos, isFetching, hasFetchError, addTodo, toggleTodo, deleteTodo, isAdding } = useTodos();
+import type { Todo } from '../interfaces/ITodo';
+import type { TodoListType } from "../interfaces/ITodoList";
+import { Popup } from "./Popup";
+import { useState } from 'react';
+import { TodoForm } from "../forms/TodoForm";
+import { ListForm } from "../forms/ListForm";
 
-  function handleAdd() {
-    const trimmed = input.trim();
-    if (!trimmed) return;
-    addTodo(trimmed);
-    setInput("");
-  }
+export interface TodoListProps {
+    list: TodoListType;
+    onAddTodo: (listId: number, text: string) => void;
+    onEditTodo: (listId: number, todoId: number, text: string) => void;
+    onToggleTodo: (listId: number, todoId: number) => void;
+    onDeleteTodo: (listId: number, todoId: number) => void;
+    onEditList: (listId: number, text: string) => void;
+    onDeleteList: (listId: number) => void;
+}
+export function TodoList({ list, onAddTodo, onToggleTodo, onDeleteTodo, onEditList, onDeleteList, onEditTodo }: TodoListProps) {
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") handleAdd();
-  }
+    const [editPopupActive, setEditPopupActive] = useState(false);
+    const [addPopupActive, setAddPopupActive] = useState(false);
+    const completed = list.items.filter(todo => todo.completed).length;
+    const percentage = list.items.length > 0 ? (completed / list.items.length) * 100 : 0;
 
-  if (isFetching) return <p>Carregando...</p>;
-  if (hasFetchError) return <p style={{ color: "red" }}>Erro ao carregar tarefas.</p>;
+    const [percentageType, setPercentageType] = useState(true);
 
-  return (
-    <div style={{ maxWidth: "400px", margin: "2rem auto", fontFamily: "sans-serif" }}>
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Nova tarefa..."
-          style={{ flex: 1, padding: "0.5rem" }}
-          disabled={isAdding}
-        />
-        <button onClick={handleAdd} disabled={isAdding} style={{ padding: "0.5rem 1rem" }}>
-          {isAdding ? "..." : "Adicionar"}
-        </button>
-      </div>
 
-      {todos.length === 0 ? (
-        <p style={{ color: "#999" }}>Nenhuma tarefa ainda.</p>
-      ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {todos.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              onToggle={toggleTodo}
-              onDelete={deleteTodo}
-            />
-          ))}
-        </ul>
-      )}
 
-      <p style={{ fontSize: "0.85rem", color: "#666" }}>
-        {todos.filter((t) => t.isFinished).length} / {todos.length} concluídas
-      </p>
-    </div>
-  );
+
+
+    return (
+
+        <div className=" flex ">
+            <div className=" bg-[#161616] w-[300px] h-fit flex   justify-center p-1.5 items-center rounded-md ">
+
+                <div className="   flex w-full h-full flex-col">
+
+
+
+                    <div className="  p-1 gap-2 flex flex-col h-full">
+
+                        <div className="rounded-md relative group text-[#e9e9e9] wrap-break-word font-[600] text-[14px] leading-4 p-1.5 hover:bg-[#252525]"
+                            onClick={() => setEditPopupActive(true)}>
+
+                            <span className="break-words">{list.title}</span>
+
+
+
+                            <div className=" size-[20px] absolute top-1.5 right-1.5 px-[15px] opacity-0 group-hover:opacity-100  bg-[#252525]"
+
+                            />
+
+                            <RemoveIcon className="size-[20px] text-[#9c9c9c] absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-white" onClick={() => onDeleteList(list.id)} />
+
+
+                            {editPopupActive && (
+                                <Popup title="" onClose={() => setEditPopupActive(false)}>
+                                    <ListForm
+                                        onConfirm={(title) => {
+                                            onEditList(list.id, title);
+                                            setEditPopupActive(false);
+                                        }}
+                                        onCancel={() => setEditPopupActive(false)}
+                                    />
+                                </Popup>
+                            )}
+
+                        </div>
+
+
+                        <div className="h-[4px] w-full rounded-md flex flex-row items-center gap-1">
+
+                            <div className="bg-[#4e4e4e] w-full h-full rounded-md">
+                                <div className="bg-yellow-500 h-full  rounded-md" style={{ width: `${percentage}%` }} />
+
+                            </div>
+
+                            <span className="text-[12px] font-bold font-mono tabular-nums text-center  shrink-0 w-[4ch] hover:text-white select-none cursor-pointer" onClick={() => setPercentageType(!percentageType)}>
+                                {percentageType ? `${Math.round(percentage)}%` : `${completed}/${list.items.length}`}
+                            </span>
+
+                        </div>
+
+
+
+                        {list.items.length > 0 && (
+                            <div className="  max-h-[72.2vh] flex flex-col  gap-2">
+
+
+
+                                <div className="flex flex-col gap-2 overflow-y-auto">
+                                    {list.items.map((todo: Todo) => (
+                                        <TodoItem key={todo.id} todo={todo} onToggle={() => onToggleTodo(list.id, todo.id)} onDelete={() => onDeleteTodo(list.id, todo.id)} onEdit={(todoId, title) => onEditTodo(list.id, todoId, title)} />
+                                    ))}
+                                </div>
+
+                            </div>
+                        )}
+
+                        <div className=" bg-[#4e4e4e] h-[35px] rounded-md flex  px-2 items-center gap-2 text-[#e9e9e9] text-[14px] font-[600] 
+                        select-none  cursor-pointer leading-0 hover:bg-[#555555]" onClick={() => setAddPopupActive(true)} >
+                            <AddIcon className=" size-[20px] text-[#e9e9e9]" />
+                            <div >Adicionar tarefa</div>
+
+
+                            {addPopupActive && (
+                                <Popup title="" onClose={() => setAddPopupActive(false)}>
+                                    <TodoForm
+                                        onConfirm={(title) => {
+                                            onAddTodo(list.id, title);
+                                            setAddPopupActive(false);
+                                        }}
+                                        onCancel={() => setAddPopupActive(false)}
+                                    />
+                                </Popup>
+                            )}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div className="  w-[18px] "></div>
+
+        </div>
+
+    );
 }

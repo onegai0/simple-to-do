@@ -4,7 +4,7 @@
   
   --text: #9ca3af;
   --text-h: #f3f4f6;
-  --bg: #0e0e0e;
+  --bg: #000000;
   --border: #2e303a;
   --code-bg: #1f2028;
   --accent: #c084fc;
@@ -53,19 +53,7 @@ h1, h2, h3 {
   font-size: inherit;
   font-weight: inherit;
 }
-
-#root {
-  max-width: 100%;
-  display: flex;
-  min-height: 100svh;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-}
-
-p {
+html, body, #root {
+  height: 100%;
   margin: 0;
 }

@@ -8,7 +8,7 @@ export const todoService = {
     api.get<Todo[]>("/api/todo").then((res) => res.data),
  
   add: (title: string) =>
-    api.post<Todo>("/api/todo", { title, isFinished: false }).then((res) => res.data),
+    api.post<Todo>("/api/todo", { title, completed: false }).then((res) => res.data),
  
   update: (todo: Todo) =>
     api.put<Todo>(`/api/todo/${todo.id}`, todo).then((res) => res.data),
